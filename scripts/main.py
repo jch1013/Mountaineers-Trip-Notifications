@@ -1,10 +1,10 @@
 import load_data
+import scrape_courses
 
 
 def main():
     # using to test for now
-    print("hello")
-    load_data.read_user_data()
+    scrape_courses.search("Scrambling")
 
 
 main()
