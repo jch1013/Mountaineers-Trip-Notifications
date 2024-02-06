@@ -1,0 +1,48 @@
+import math
+
+import classes
+from selenium import webdriver
+import time
+import bs4
+
+
+# returns a list of current courses being offererd with the given category
+def search(keyword):
+    total_results = get_total_results(keyword)
+    total_pages = math.ceil(total_results / 20)
+
+    driver = webdriver.Chrome()
+    for num in range(total_pages):
+        page_to_scrape = f'https://www.mountaineers.org/activities/activities#b_start={20 * num}&c4={keyword}'
+        driver.get(page_to_scrape)
+        time.sleep(3)
+        page_source = driver.page_source
+        html = bs4.BeautifulSoup(page_source, "html.parser")
+        trip_names = html.select(".result-title")
+        trip_dates = html.select(".result-date")
+        trip_registration_statuses = html.select(".result-reg")
+        trip_branches = html.select(".result-branch")
+        trip_difficulties = html.select(".result-difficulty")
+
+        for i in range(len(trip_names)):
+            name = trip_names[i].text.strip()
+            link = "link"
+            date = trip_dates[i].text.strip()
+            registration_status = trip_registration_statuses[i].text.strip()
+            branch = trip_branches[i].text.strip()
+            difficulty = "difficulty"
+            trip = classes.Course(name, link, date, registration_status, branch, difficulty)
+            print(trip)
+
+
+
+
+def get_total_results(keyword):
+    first_page_results = f'https://www.mountaineers.org/activities/activities#b_start=0&c4={keyword}'
+    driver = webdriver.Chrome()
+    driver.get(first_page_results)
+    time.sleep(3)
+    page_source = driver.page_source
+    html = bs4.BeautifulSoup(page_source, "html.parser")
+    results = html.select_one("#faceted-result-count").text
+    return int(results.strip().split()[0])
